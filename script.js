@@ -227,6 +227,9 @@ function autoroll(){
     for (var i = 1; i <= fixed_dice_ticket.length; i++){
         document.getElementById("fixed"+i).value = fixed_dice_ticket[i-1]
     }
+
+    document.getElementById("rollcount").value = total_roll_count
+    document.getElementById("lapcount").value = total_laps
     
     resetGlobal()
 }
@@ -244,6 +247,8 @@ function largesample(){
 
     sum_current_rewards = [[0],[0],[0],[0],[0],[0],[0],[0],[0]]
     sum_fixed_dice_ticket = [0,0,0,0,0,0]
+    sum_total_roll_count = 0
+    sum_total_laps = 0
 
     const NSAMPLE = 200
     
@@ -272,10 +277,15 @@ function largesample(){
 
         sum_current_rewards = math.add(sum_current_rewards, current_rewards)
         sum_fixed_dice_ticket = math.add(sum_fixed_dice_ticket, fixed_dice_ticket)
+
+        sum_total_roll_count += total_roll_count
+        sum_total_laps += total_laps
     }
 
     sum_current_rewards = math.dotDivide(sum_current_rewards, NSAMPLE);
     sum_fixed_dice_ticket = math.dotDivide(sum_fixed_dice_ticket, NSAMPLE)
+    sum_total_roll_count /= NSAMPLE
+    sum_total_laps /= NSAMPLE
 
     for (var i = 0; i < sum_current_rewards.length; i++){
         document.getElementById("loot"+i).value = sum_current_rewards[i]
@@ -283,6 +293,9 @@ function largesample(){
     for (var i = 1; i <= sum_fixed_dice_ticket.length; i++){
         document.getElementById("fixed"+i).value = sum_fixed_dice_ticket[i-1]
     }
+
+    document.getElementById("rollcount").value = sum_total_roll_count
+    document.getElementById("lapcount").value = sum_total_laps
 
     resetGlobal()
 }
