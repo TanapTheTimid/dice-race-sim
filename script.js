@@ -315,6 +315,83 @@ function largesample(){
 
 
 
+function genDump(){
+    document.getElementById("printer").value = ""
+
+    optarget = document.querySelector('input[name="maxtarget"]:checked')
+    if (optarget == null) {
+        optiles = [] 
+    } else {
+        optarget = parseInt(optarget.value)
+        optiles = BEST_TILES[optarget]
+    }
+
+    rollcount = parseInt(document.getElementById("autorollcount").value)
+
+    for (var upto = 1; upto <= rollcount; upto++){
+        
+        sum_current_rewards = [[0],[0],[0],[0],[0],[0],[0],[0],[0]]
+        sum_fixed_dice_ticket = [0,0,0,0,0,0]
+        sum_total_roll_count = 0
+        sum_total_laps = 0
+
+        catrewards = -1
+
+        const NSAMPLE = 200
+        
+        for (var sample = 0; sample < NSAMPLE; sample++){
+            resetGlobal();
+
+            var i = 0;
+            doroll: while (i < upto){
+
+                for (var fixed_dice_i = 0; fixed_dice_i < fixed_dice_ticket.length; fixed_dice_i++) {
+                    fdstep = fixed_dice_i + 1;
+                    if (fixed_dice_ticket[fixed_dice_i] > 0 && optiles.includes(current_cell + fdstep)){
+                        autoticketuse(fdstep)
+                        continue doroll;
+                    }
+                }
+                
+                autodiceroll()
+                i++
+            }
+
+            // output rewards and remaining dice fixed
+            current_rewards = math.multiply(REWAREDS, current_location_visit_count)
+            current_lap_rewards = math.multiply(LAP_REWAREDS, lap_ticks)
+            current_rewards = math.add(current_rewards, current_lap_rewards)
+
+            sum_current_rewards = math.add(sum_current_rewards, current_rewards)
+            sum_fixed_dice_ticket = math.add(sum_fixed_dice_ticket, fixed_dice_ticket)
+
+            if (catrewards === -1){
+                catrewards = current_rewards
+            } else {
+                catrewards = math.concat(catrewards, current_rewards)
+            }
+
+            sum_total_roll_count += total_roll_count
+            sum_total_laps += total_laps
+        }
+
+        stdvrewards = math.std(catrewards, 1)
+        minrewards = math.min(catrewards, 1)
+        maxrewards = math.max(catrewards, 1)
+
+        sum_current_rewards = math.dotDivide(sum_current_rewards, NSAMPLE);
+        sum_fixed_dice_ticket = math.dotDivide(sum_fixed_dice_ticket, NSAMPLE)
+        sum_total_roll_count /= NSAMPLE
+        sum_total_laps /= NSAMPLE
+
+        document.getElementById("printer").value += (sum_current_rewards[0] - stdvrewards[0]).toString() + "\n"
+
+        resetGlobal()
+    }
+}
+
+
+
 
 function resetButton(){
     resetGlobal()
